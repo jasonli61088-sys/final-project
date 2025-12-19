@@ -1,0 +1,74 @@
+{
+  "map": [
+    {
+      "path": "map.tmx",
+      "enemy_trainers": [
+        { "x": 24, "y": 29, "classification": "stationary", "facing": "DOWN", "max_tiles": 2 },
+        { "x": 54, "y": 16, "classification": "stationary", "facing": "UP", "max_tiles": 2 },
+        { "x": 31, "y": 31, "classification": "stationary", "facing": "UP", "max_tiles": 2 }
+      ],
+      "shop_npcs": [],
+      "teleport": [
+        { "x": 24, "y": 23, "destination": "gym.tmx" },
+        { "x": 16, "y": 27, "destination": "new_map.tmx" }
+      ],
+      "player": {
+        "x": 16,
+        "y": 30
+      }
+    },
+    {
+      "path": "gym.tmx",
+      "teleport": [
+        { "x": 11, "y": 14, "destination": "map.tmx" },
+        { "x": 12, "y": 14, "destination": "map.tmx" },
+        { "x": 13, "y": 14, "destination": "map.tmx" }
+      ],
+      "roaming_mobs": [],
+      "enemy_trainers": [],
+      "shop_npcs": [],
+      "player": {
+        "x": 12,
+        "y": 12
+      }
+    },
+    {
+      "path": "new_map.tmx",
+      "teleport": [
+        { "x": 9, "y": 19, "destination": "map.tmx" },
+        { "x": 10, "y": 19, "destination": "map.tmx" }
+      ],
+      "roaming_mobs": [],
+      "enemy_trainers": [],
+      "shop_npcs": [
+        { "x": 5, "y": 10, "type": "shop", "facing": "RIGHT", "interaction_range": 1 }
+      ],
+      "player": {
+        "x": 10,
+        "y": 17
+      }
+    }
+  ],
+  "current_map": "map.tmx",
+  "player": {
+    "x": 16,
+    "y": 30
+  },
+  "bag": {
+    "monsters": [
+      { "name": "Pikachu",   "hp": 50,  "max_hp": 50, "level": 7, "attack": 10, "sprite_path": "menu_sprites/menusprite1.png", "element": "Grass", "exp": 0, "exp_to_next_level": 80 },
+      { "name": "Charizard", "hp": 195, "max_hp": 195, "level": 36, "attack": 25, "sprite_path": "menu_sprites/menusprite2.png", "element": "Grass", "exp": 0, "exp_to_next_level": 12960 },
+      { "name": "Blastoise", "hp": 195, "max_hp": 195, "level": 36, "attack": 25, "sprite_path": "menu_sprites/menusprite3.png", "element": "Grass", "exp": 0, "exp_to_next_level": 12960 },
+      { "name": "Venusaur",  "hp": 50, "max_hp": 50, "level": 7, "attack": 10, "sprite_path": "menu_sprites/menusprite4.png", "element": "Fire", "exp": 0, "exp_to_next_level": 80 },
+      { "name": "Gengar",    "hp": 50, "max_hp": 50, "level": 7, "attack": 10, "sprite_path": "menu_sprites/menusprite5.png", "element": "Fire", "exp": 0, "exp_to_next_level": 80 },
+      { "name": "Dragonite", "hp": 50, "max_hp": 50, "level": 7, "attack": 10, "sprite_path": "menu_sprites/menusprite6.png", "element": "Water", "exp": 0, "exp_to_next_level": 80 }
+    ],
+    "items": [
+      { "name": "Heal Potion",      "count": 2,  "sprite_path": "ingame_ui/potion.png" },
+      { "name": "Strength Potion",  "count": 1,  "sprite_path": "ingame_ui/potion.png" },
+      { "name": "Defense Potion",   "count": 1,  "sprite_path": "ingame_ui/potion.png" },
+      { "name": "Coins",            "count": 50,  "sprite_path": "ingame_ui/coin.png" },
+      { "name": "Pokeball",         "count": 10, "sprite_path": "ingame_ui/ball.png" }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+[16:50:37] [INFO] Initializing SceneManager
+[16:50:38] [INFO] Initializing Engine
+[16:50:38] [INFO] Loading image: backgrounds/background1.png
+[11:43:57] [WARNING] websockets library not installed. Run: pip install websockets
+[11:43:57] [INFO] Initializing SceneManager
+[11:43:58] [INFO] Initializing Engine
+[11:43:58] [INFO] Loading image: backgrounds/background1.png
+[14:38:17] [INFO] Initializing SceneManager
+[14:38:18] [INFO] Initializing Engine
+[14:38:18] [INFO] Loading image: backgrounds/background1.png

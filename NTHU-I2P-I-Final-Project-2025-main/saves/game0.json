@@ -1,0 +1,202 @@
+{
+  "map": [
+    {
+      "path": "map.tmx",
+      "teleport": [
+        {
+          "x": 24,
+          "y": 23,
+          "destination": "gym.tmx"
+        },
+        {
+          "x": 16,
+          "y": 27,
+          "destination": "new_map.tmx"
+        }
+      ],
+      "player": {
+        "x": 16.0,
+        "y": 30.0
+      },
+      "enemy_trainers": [
+        {
+          "x": 24.0,
+          "y": 29.0,
+          "classification": "stationary",
+          "facing": "DOWN",
+          "max_tiles": 2,
+          "element": "Fire"
+        },
+        {
+          "x": 54.0,
+          "y": 16.0,
+          "classification": "stationary",
+          "facing": "UP",
+          "max_tiles": 2,
+          "element": "Fire"
+        },
+        {
+          "x": 31.0,
+          "y": 31.0,
+          "classification": "stationary",
+          "facing": "UP",
+          "max_tiles": 2,
+          "element": "Fire"
+        }
+      ],
+      "shop_npcs": []
+    },
+    {
+      "path": "gym.tmx",
+      "teleport": [
+        {
+          "x": 11,
+          "y": 14,
+          "destination": "map.tmx",
+          "target_x": 24,
+          "target_y": 23
+        },
+        {
+          "x": 12,
+          "y": 14,
+          "destination": "map.tmx",
+          "target_x": 24,
+          "target_y": 23
+        },
+        {
+          "x": 13,
+          "y": 14,
+          "destination": "map.tmx",
+          "target_x": 24,
+          "target_y": 23
+        }
+      ],
+      "player": {
+        "x": 12.0,
+        "y": 12.0
+      },
+      "enemy_trainers": [],
+      "shop_npcs": []
+    },
+    {
+      "path": "new_map.tmx",
+      "teleport": [
+        {
+          "x": 9,
+          "y": 19,
+          "destination": "map.tmx"
+        },
+        {
+          "x": 10,
+          "y": 19,
+          "destination": "map.tmx"
+        }
+      ],
+      "player": {
+        "x": 10.0,
+        "y": 17.0
+      },
+      "enemy_trainers": [],
+      "shop_npcs": [
+        {
+          "x": 10.0,
+          "y": 7.0,
+          "type": "shop",
+          "facing": "DOWN",
+          "interaction_range": 1
+        }
+      ]
+    }
+  ],
+  "current_map": "map.tmx",
+  "player": {
+    "x": 16.0,
+    "y": 30.0
+  },
+  "bag": {
+    "monsters": [
+      {
+        "name": "Pikachu",
+        "hp": 50,
+        "max_hp": 50,
+        "level": 7,
+        "attack": 10,
+        "sprite_path": "menu_sprites/menusprite1.png",
+        "element": "Grass",
+        "exp": 0,
+        "exp_to_next_level": 40
+      },
+      {
+        "name": "Psyduck",
+        "hp": 95,
+        "max_hp": 95,
+        "level": 16,
+        "attack": 15,
+        "sprite_path": "menu_sprites/menusprite16.png",
+        "element": "Grass",
+        "exp": 0,
+        "exp_to_next_level": 85
+      },
+      {
+        "name": "Caterpie",
+        "hp": 50,
+        "max_hp": 50,
+        "level": 7,
+        "attack": 10,
+        "sprite_path": "menu_sprites/menusprite10.png",
+        "element": "Water",
+        "exp": 0,
+        "exp_to_next_level": 40
+      },
+      {
+        "name": "Oddish",
+        "hp": 50,
+        "max_hp": 50,
+        "level": 7,
+        "attack": 10,
+        "sprite_path": "menu_sprites/menusprite11.png",
+        "element": "Water",
+        "exp": 0,
+        "exp_to_next_level": 40
+      },
+      {
+        "name": "Zubat",
+        "hp": 195,
+        "max_hp": 195,
+        "level": 36,
+        "attack": 25,
+        "sprite_path": "menu_sprites/menusprite9.png",
+        "element": "Fire",
+        "exp": 0,
+        "exp_to_next_level": 185
+      }
+    ],
+    "items": [
+      {
+        "name": "Heal Potion",
+        "count": 2,
+        "sprite_path": "ingame_ui/potion.png"
+      },
+      {
+        "name": "Strength Potion",
+        "count": 1,
+        "sprite_path": "ingame_ui/potion.png"
+      },
+      {
+        "name": "Defense Potion",
+        "count": 1,
+        "sprite_path": "ingame_ui/potion.png"
+      },
+      {
+        "name": "Coins",
+        "count": 50,
+        "sprite_path": "ingame_ui/coin.png"
+      },
+      {
+        "name": "Pokeball",
+        "count": 10,
+        "sprite_path": "ingame_ui/ball.png"
+      }
+    ]
+  }
+}
