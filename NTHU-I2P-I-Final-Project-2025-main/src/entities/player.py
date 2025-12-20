@@ -117,6 +117,13 @@ class Player(Entity):
             tp = self.game_manager.current_map.check_teleport(self.position)
             if tp:
                 dest = tp.destination
+                # Face up when teleporting to or from mountain_map
+                try:
+                    if dest == "mountain_map.tmx" or self.game_manager.current_map_key == "mountain_map.tmx":
+                        self.direction = Direction.UP
+                        self.animation.switch("up")
+                except Exception:
+                    pass
                 self.game_manager.switch_map(dest, tp.target_x, tp.target_y)
                 # Set 1 second cooldown after teleporting
                 self._teleport_cooldown = 1.0

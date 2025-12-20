@@ -221,7 +221,7 @@ class GameScene(Scene):
         self.nav_target_map: str | None = None
         self.nav_target_tile: tuple[int, int] | None = None
         self._nav_active_map: str = self.game_manager.current_map_key
-        self.nav_speed = 120  # pixels per second
+        self.nav_speed = 180  # pixels per second
 
     def _setup_navigate_buttons(self):
         self._navigate_buttons.clear()
@@ -624,16 +624,63 @@ class GameScene(Scene):
                         self.game_manager.player.direction = Direction.UP
                         self.game_manager.player.animation.switch("up")
                 
-                # Move player
+                # Move player with collision checks (axis-separated like manual control)
                 move_distance = self.nav_speed * dt
+                step_x = (dx / distance) * move_distance
+                step_y = (dy / distance) * move_distance
+                p = self.game_manager.player
+                moved = False
+
+                # Move X
+                if step_x != 0:
+                    old_x = p.position.x
+                    p.position.x = old_x + step_x
+                    p.animation.update_pos(p.position)
+                    if self.game_manager.check_collision(p.animation.rect):
+                        p.position.x = old_x  # revert on collision
+                        p.animation.update_pos(p.position)
+                    else:
+                        moved = True
+
+                # Move Y
+                if step_y != 0:
+                    old_y = p.position.y
+                    p.position.y = old_y + step_y
+                    p.animation.update_pos(p.position)
+                    if self.game_manager.check_collision(p.animation.rect):
+                        p.position.y = old_y  # revert on collision
+                        p.animation.update_pos(p.position)
+                    else:
+                        moved = True
+
+                # If we can reach the target in this frame without overshooting, snap to it (still respecting collision)
                 if distance <= move_distance:
-                    self.game_manager.player.position.x = target_x
-                    self.game_manager.player.position.y = target_y
-                else:
-                    self.game_manager.player.position.x += (dx / distance) * move_distance
-                    self.game_manager.player.position.y += (dy / distance) * move_distance
-                
-                self.game_manager.player.is_moving = True
+                    target_old_x, target_old_y = p.position.x, p.position.y
+                    p.position.x = target_x
+                    p.position.y = target_y
+                    p.animation.update_pos(p.position)
+                    if self.game_manager.check_collision(p.animation.rect):
+                        # revert if snapping would enter collision
+                        p.position.x = target_old_x
+                        p.position.y = target_old_y
+                        p.animation.update_pos(p.position)
+                    else:
+                        moved = True
+
+                # If blocked and not moved, replan a fresh path from current tile to the goal
+                p.is_moving = moved
+                if not moved:
+                    try:
+                        # Determine the current target we are pursuing
+                        goal_x, goal_y = target_tx, target_ty
+                        goal_is_tp = bool(self.nav_teleport_pending)
+                        # If we had an overall nav target recorded, prefer that
+                        if self.nav_target_tile:
+                            goal_x, goal_y = self.nav_target_tile
+                            goal_is_tp = False
+                        self._start_auto_navigation(goal_x, goal_y, allow_fallback=True, goal_is_teleporter=goal_is_tp)
+                    except Exception:
+                        pass
             else:
                 self.current_nav_target = None
         else:

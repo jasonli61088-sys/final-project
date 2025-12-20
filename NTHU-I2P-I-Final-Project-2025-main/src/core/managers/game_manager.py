@@ -1,5 +1,5 @@
 from __future__ import annotations
-from src.utils import Logger, GameSettings, Position, Teleport
+from src.utils import Logger, GameSettings, Position, Teleport, Direction
 import json, os
 import pygame as pg
 from typing import TYPE_CHECKING
@@ -78,6 +78,7 @@ class GameManager:
             
     def try_switch_map(self) -> None:
         if self.should_change_scene:
+            prev_map = self.current_map_key
             self.current_map_key = self.next_map
             self.next_map = ""
             self.should_change_scene = False
@@ -92,6 +93,14 @@ class GameManager:
                 else:
                     target_spawn = self.maps[self.current_map_key].spawn
                     self.player.position = Position(target_spawn.x, target_spawn.y)
+
+                # Force facing up for mountain transitions (both entering and leaving)
+                try:
+                    if self.current_map_key == "mountain_map.tmx" or prev_map == "mountain_map.tmx":
+                        self.player.direction = Direction.UP
+                        self.player.animation.switch("up")
+                except Exception:
+                    pass
             
     def check_collision(self, rect: pg.Rect) -> bool:
         if self.maps[self.current_map_key].check_collision(rect):

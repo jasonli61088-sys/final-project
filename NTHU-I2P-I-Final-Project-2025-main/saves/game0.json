@@ -12,6 +12,34 @@
           "x": 16,
           "y": 27,
           "destination": "new_map.tmx"
+        },
+        {
+          "x": 14,
+          "y": 38,
+          "destination": "mountain_map.tmx",
+          "target_x": 10,
+          "target_y": 20
+        },
+        {
+          "x": 15,
+          "y": 38,
+          "destination": "mountain_map.tmx",
+          "target_x": 10,
+          "target_y": 20
+        },
+        {
+          "x": 16,
+          "y": 38,
+          "destination": "mountain_map.tmx",
+          "target_x": 10,
+          "target_y": 20
+        },
+        {
+          "x": 17,
+          "y": 38,
+          "destination": "mountain_map.tmx",
+          "target_x": 10,
+          "target_y": 20
         }
       ],
       "player": {
@@ -106,6 +134,24 @@
           "interaction_range": 1
         }
       ]
+    },
+    {
+      "path": "mountain_map.tmx",
+      "teleport": [
+        {
+          "x": 10,
+          "y": 20,
+          "destination": "map.tmx",
+          "target_x": 15,
+          "target_y": 37
+        }
+      ],
+      "player": {
+        "x": 10.0,
+        "y": 19.0
+      },
+      "enemy_trainers": [],
+      "shop_npcs": []
     }
   ],
   "current_map": "map.tmx",
@@ -158,6 +204,17 @@
         "element": "Water",
         "exp": 0,
         "exp_to_next_level": 40
+      },
+      {
+        "name": "Eevee",
+        "hp": 95,
+        "max_hp": 95,
+        "level": 16,
+        "attack": 15,
+        "sprite_path": "menu_sprites/menusprite13.png",
+        "element": "Water",
+        "exp": 0,
+        "exp_to_next_level": 85
       },
       {
         "name": "Zubat",

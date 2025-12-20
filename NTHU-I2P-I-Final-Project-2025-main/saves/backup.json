@@ -10,11 +10,28 @@
       "shop_npcs": [],
       "teleport": [
         { "x": 24, "y": 23, "destination": "gym.tmx" },
-        { "x": 16, "y": 27, "destination": "new_map.tmx" }
+        { "x": 16, "y": 27, "destination": "new_map.tmx" },
+        { "x": 14, "y": 38, "destination": "mountain_map.tmx", "target_x": 10, "target_y": 19 },
+        { "x": 15, "y": 38, "destination": "mountain_map.tmx", "target_x": 10, "target_y": 19 },
+        { "x": 16, "y": 38, "destination": "mountain_map.tmx", "target_x": 10, "target_y": 19 },
+        { "x": 17, "y": 38, "destination": "mountain_map.tmx", "target_x": 10, "target_y": 19 }
       ],
       "player": {
         "x": 16,
         "y": 30
+      }
+    },
+    {
+      "path": "mountain_map.tmx",
+      "teleport": [
+        { "x": 10, "y": 20, "destination": "map.tmx", "target_x": 15, "target_y": 36 }
+      ],
+      "roaming_mobs": [],
+      "enemy_trainers": [],
+      "shop_npcs": [],
+      "player": {
+        "x": 10,
+        "y": 19
       }
     },
     {
@@ -62,6 +79,7 @@
       { "name": "Venusaur",  "hp": 50, "max_hp": 50, "level": 7, "attack": 10, "sprite_path": "menu_sprites/menusprite4.png", "element": "Fire", "exp": 0, "exp_to_next_level": 80 },
       { "name": "Gengar",    "hp": 50, "max_hp": 50, "level": 7, "attack": 10, "sprite_path": "menu_sprites/menusprite5.png", "element": "Fire", "exp": 0, "exp_to_next_level": 80 },
       { "name": "Dragonite", "hp": 50, "max_hp": 50, "level": 7, "attack": 10, "sprite_path": "menu_sprites/menusprite6.png", "element": "Water", "exp": 0, "exp_to_next_level": 80 }
+      ,{ "name": "Sprite12", "hp": 50, "max_hp": 50, "level": 7, "attack": 10, "sprite_path": "menu_sprites/menusprite12.png", "element": "Water", "exp": 0, "exp_to_next_level": 80 }
     ],
     "items": [
       { "name": "Heal Potion",      "count": 2,  "sprite_path": "ingame_ui/potion.png" },

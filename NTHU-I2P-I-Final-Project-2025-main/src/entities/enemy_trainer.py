@@ -1,6 +1,7 @@
 from __future__ import annotations
 import pygame
 from enum import Enum
+import random
 from dataclasses import dataclass
 from typing import override
 
@@ -61,6 +62,8 @@ class EnemyTrainer(Entity):
         if self.detected and input_manager.key_pressed(pygame.K_SPACE):
             # Start a battle: store the target on the scene_manager and switch to battle scene
             try:
+                # Assign a random monster (sprite1~16) with basic stats before battle
+                self._assign_random_monster()
                 setattr(scene_manager, "battle_target", self)
                 scene_manager.change_scene("battle")
             except Exception:
@@ -158,3 +161,102 @@ class EnemyTrainer(Entity):
         base["max_tiles"] = self.max_tiles
         base["element"] = self.element
         return base
+
+    def _assign_random_monster(self) -> None:
+        """Assign a random Pokemon sprite (1-16) and simple stats for battle.
+        This sets dynamic attributes consumed by BattleScene: sprite_path, name,
+        level, hp, max_hp, attack, element, exp, exp_to_next_level.
+        """
+        try:
+            idx = random.randint(1, 16)
+            sprite_path = f"sprites/sprite{idx}.png"
+            name = f"Sprite{idx}"
+            
+            # Tier-based level assignment
+            tier1 = {1, 4, 5, 6, 7, 10, 11, 12, 15}
+            tier2 = {2, 8, 13, 16}
+            tier3 = {3, 9, 14}
+            
+            if idx in tier1:
+                level = random.randint(6, 15)
+            elif idx in tier2:
+                level = random.randint(16, 35)
+            elif idx in tier3:
+                level = random.randint(36, 50)
+            else:
+                level = random.randint(6, 15)  # Fallback
+            
+            # Scale HP and attack based on level with exact formulas
+            # Reference points: Lv7(ATK=10,HP=50), Lv16(ATK=15,HP=95), Lv36(ATK=25,HP=195)
+            # HP formula: 5 * level + 15
+            max_hp = round(5 * level + 15)
+            
+            # Attack formula (piecewise linear):
+            # Levels 6-16: slope = 5/9 from (7,10) to (16,15)
+            # Levels 16+: slope = 0.5 from (16,15) to (36,25)
+            if level <= 16:
+                attack = round(10 + (level - 7) * (5 / 9))
+            else:
+                attack = round(15 + (level - 16) * 0.5)
+            
+            # Map index to element to align with BattleScene's logic
+            grass = {1, 2, 3, 15, 16}
+            fire = {4, 5, 7, 8, 9}
+            water = {6, 10, 11, 12, 13, 14}
+            if idx in grass:
+                element = "Grass"
+            elif idx in fire:
+                element = "Fire"
+            elif idx in water:
+                element = "Water"
+            else:
+                element = "Normal"
+
+            # Assign on self for BattleScene to read
+            self.sprite_path = sprite_path
+            self.name = name
+            self.level = level
+            self.max_hp = max_hp
+            self.hp = max_hp
+            self.attack = attack
+            self.element = element
+            # Wild-like progression fields
+            self.exp = 0
+            self.exp_to_next_level = level ** 2 * 10
+            # Provide a dict with the same schema used for wild monsters
+            self.monster_data = {
+                "name": name,
+                "hp": max_hp,
+                "max_hp": max_hp,
+                "level": level,
+                "sprite_path": sprite_path,
+                "element": element,
+                "exp": 0,
+                "exp_to_next_level": self.exp_to_next_level,
+                "attack": attack,
+            }
+        except Exception:
+            # Fallback to a reasonable default
+            try:
+                self.sprite_path = "sprites/sprite10.png"
+                self.name = "Sprite10"
+                self.level = 5
+                self.max_hp = 80
+                self.hp = 80
+                self.attack = 10
+                self.element = "Water"
+                self.exp = 0
+                self.exp_to_next_level = self.level ** 2 * 10
+                self.monster_data = {
+                    "name": self.name,
+                    "hp": self.max_hp,
+                    "max_hp": self.max_hp,
+                    "level": self.level,
+                    "sprite_path": self.sprite_path,
+                    "element": self.element,
+                    "exp": 0,
+                    "exp_to_next_level": self.exp_to_next_level,
+                    "attack": self.attack,
+                }
+            except Exception:
+                pass

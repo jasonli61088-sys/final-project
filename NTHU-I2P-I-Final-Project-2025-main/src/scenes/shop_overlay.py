@@ -10,6 +10,8 @@ class ShopOverlay:
         self.game_manager = game_manager
         self.active = False
         self.mode = "buy"  # "buy" or "sell"
+        self.info_message: str = ""
+        self.info_timer: float = 0.0
         
         # Shop inventory - items available for purchase
         self.shop_items = [
@@ -77,6 +79,11 @@ class ShopOverlay:
         self.scroll_offset = 0
         self._create_sell_buttons()
 
+    def _set_info(self, msg: str, duration: float = 2.0):
+        """Show a short info message on the shop panel."""
+        self.info_message = msg
+        self.info_timer = duration
+
     def _create_buy_buttons(self):
         """Create individual buy buttons for each shop item"""
         self.buy_buttons = []
@@ -132,12 +139,23 @@ class ShopOverlay:
         monsters = self.game_manager.bag._monsters_data if hasattr(self.game_manager.bag, '_monsters_data') else []
         
         if 0 <= index < len(monsters):
+            # Prevent selling the last remaining Pokemon
+            if len(monsters) <= 1:
+                self._set_info("you have to obtain at least 1 pokemon")
+                return
             # Remove Pokemon from bag
             monsters.pop(index)
             # Add coins
             self._add_coins(50)
             # Recreate buttons since list changed
             self._create_sell_buttons()
+            # Reset selection and clamp scroll if list shrank
+            self.selected_index = -1
+            list_height = self.panel_height - 200
+            item_height = 80
+            max_scroll = max(0, len(monsters) * item_height - list_height)
+            if self.scroll_offset > max_scroll:
+                self.scroll_offset = max_scroll
     
     def open(self):
         """Open the shop overlay"""
@@ -225,11 +243,21 @@ class ShopOverlay:
                 # Sell for coins (fixed price per monster)
                 sell_price = 50  # Default sell price for Pokemon
                 
+                # Prevent selling the last remaining Pokemon
+                if len(monsters) <= 1:
+                    self._set_info("you have to obtain at least 1 pokemon")
+                    return
                 # Remove Pokemon from bag (this is a simplified sell - just remove it)
                 if self.selected_index < len(monsters):
                     monsters.pop(self.selected_index)
                     self._add_coins(sell_price)
                     self.selected_index = -1
+                    # Clamp scroll after removal to keep list in sync
+                    list_height = self.panel_height - 200
+                    item_height = 80
+                    max_scroll = max(0, len(monsters) * item_height - list_height)
+                    if self.scroll_offset > max_scroll:
+                        self.scroll_offset = max_scroll
     
     def handle_event(self, event: pg.event.Event):
         """Handle mouse and keyboard events"""
@@ -274,18 +302,34 @@ class ShopOverlay:
                     self.selected_index = i
                     break
         
-        # Scroll with mouse wheel (check if mouse is over the panel)
+        # Scroll with mouse wheel (supports both MOUSEWHEEL and legacy buttons 4/5)
+        wheel_delta = 0
         if event.type == pg.MOUSEWHEEL:
+            wheel_delta = event.y
+        elif event.type == pg.MOUSEBUTTONDOWN and event.button in (4, 5):
+            wheel_delta = 1 if event.button == 4 else -1
+        if wheel_delta != 0 and self.mode == "sell":
+            # Only scroll when hovering over the Pokémon list area in SELL mode
             mx, my = pg.mouse.get_pos()
-            # Only scroll if mouse is within the panel area
-            if (self.panel_x <= mx <= self.panel_x + self.panel_width and 
-                self.panel_y <= my <= self.panel_y + self.panel_height):
-                self.scroll_offset = max(0, min(self.max_scroll, self.scroll_offset - event.y * 30))
+            list_x = self.panel_x + 20
+            list_y = self.panel_y + 120
+            list_width = self.panel_width - 40
+            list_height = self.panel_height - 200
+            if (list_x <= mx <= list_x + list_width and list_y <= my <= list_y + list_height):
+                item_height = 80
+                monsters = self.game_manager.bag._monsters_data if hasattr(self.game_manager.bag, '_monsters_data') else []
+                max_scroll = max(0, len(monsters) * item_height - list_height)
+                self.scroll_offset = max(0, min(max_scroll, self.scroll_offset - wheel_delta * 30))
     
     def update(self, dt: float):
         """Update overlay state"""
         if not self.active:
             return
+
+        if self.info_timer > 0:
+            self.info_timer -= dt
+            if self.info_timer <= 0:
+                self.info_message = ""
         
         # Update buttons
         self.buy_button.update(dt)
@@ -377,6 +421,12 @@ class ShopOverlay:
         sell_label = font_btn.render("SELL", True, (0, 0, 0))  # Black
         screen.blit(buy_label, (self.panel_x + 78, self.panel_y + 70))
         screen.blit(sell_label, (self.panel_x + 195, self.panel_y + 70))
+
+        # Info message
+        if self.info_message:
+            info_font = pg.font.Font(None, 26)
+            info_surf = info_font.render(self.info_message, True, (200, 50, 50))
+            screen.blit(info_surf, (self.panel_x + 50, self.panel_y + 100))
         
         # Draw item list
         self._draw_item_list(screen)
