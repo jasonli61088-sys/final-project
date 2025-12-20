@@ -1,5 +1,5 @@
 import pygame as pg
-from src.utils import GameSettings
+from src.utils import GameSettings, Logger
 from src.interface.components import Button
 
 
@@ -78,6 +78,23 @@ class ShopOverlay:
         self.selected_index = -1
         self.scroll_offset = 0
         self._create_sell_buttons()
+
+    def _scroll_by(self, wheel_delta: int):
+        """Adjust scroll by wheel_delta (positive=up). Works in both buy/sell."""
+        if wheel_delta == 0:
+            return
+        list_height = self.panel_height - 200
+        if self.mode == "buy":
+            items = self.shop_items
+            item_height = 60
+        else:
+            items = self.game_manager.bag._monsters_data if hasattr(self.game_manager.bag, '_monsters_data') else []
+            item_height = 80
+        max_scroll = max(0, len(items) * item_height - list_height)
+        scroll_step = 40  # slower scroll for finer control
+        prev_offset = self.scroll_offset
+        self.scroll_offset = max(0, min(max_scroll, self.scroll_offset - wheel_delta * scroll_step))
+        Logger.info(f"[SHOP] wheel={wheel_delta}, offset={self.scroll_offset} (prev={prev_offset}), max={max_scroll}, mode={self.mode}")
 
     def _set_info(self, msg: str, duration: float = 2.0):
         """Show a short info message on the shop panel."""
@@ -308,18 +325,8 @@ class ShopOverlay:
             wheel_delta = event.y
         elif event.type == pg.MOUSEBUTTONDOWN and event.button in (4, 5):
             wheel_delta = 1 if event.button == 4 else -1
-        if wheel_delta != 0 and self.mode == "sell":
-            # Only scroll when hovering over the Pokémon list area in SELL mode
-            mx, my = pg.mouse.get_pos()
-            list_x = self.panel_x + 20
-            list_y = self.panel_y + 120
-            list_width = self.panel_width - 40
-            list_height = self.panel_height - 200
-            if (list_x <= mx <= list_x + list_width and list_y <= my <= list_y + list_height):
-                item_height = 80
-                monsters = self.game_manager.bag._monsters_data if hasattr(self.game_manager.bag, '_monsters_data') else []
-                max_scroll = max(0, len(monsters) * item_height - list_height)
-                self.scroll_offset = max(0, min(max_scroll, self.scroll_offset - wheel_delta * 30))
+        if wheel_delta != 0:
+            self._scroll_by(wheel_delta)
     
     def update(self, dt: float):
         """Update overlay state"""
@@ -360,9 +367,12 @@ class ShopOverlay:
         else:
             items = self.game_manager.bag._monsters_data if hasattr(self.game_manager.bag, '_monsters_data') else []
             item_height = 80  # Larger for Pokemon
-        
+
         list_height = self.panel_height - 200
         self.max_scroll = max(0, len(items) * item_height - list_height)
+        # Ensure scroll_offset stays within bounds after any list change
+        if self.scroll_offset > self.max_scroll:
+            self.scroll_offset = self.max_scroll
     
     def draw(self, screen: pg.Surface):
         """Draw the shop overlay"""

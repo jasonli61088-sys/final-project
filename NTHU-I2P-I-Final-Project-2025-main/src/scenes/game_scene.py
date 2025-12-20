@@ -164,7 +164,7 @@ class GameScene(Scene):
         nbx = sbx - 56
         self.navigate_active = False
         self.navigate_button = Button(
-            "UI/button_shop.png", "UI/button_shop_hover.png",
+            "UI/button_play.png", "UI/button_play_hover.png",
             nbx, by, 48, 48,
             lambda: setattr(self, "navigate_active", True)
         )
@@ -202,7 +202,9 @@ class GameScene(Scene):
             # Attachment 2: gym interior landing spot (gym.tmx) - only in gym and map
             ("Gym", "gym.tmx", 12, 15),
             # Attachment 3: shop area near NPC (new_map.tmx)
-            ("Shop", "new_map.tmx", 10, 8)
+            ("Shop", "new_map.tmx", 10, 8),
+            # Mountain map - center of arena
+            ("Mountain", "mountain_map.tmx", 10, 10)
         ]
         self._navigate_buttons: list[Button] = []
         self._setup_navigate_buttons()
@@ -285,22 +287,37 @@ class GameScene(Scene):
                     # No target means nothing to do
                     self.is_navigating = False
             else:
-                # Different map: handle shop/gym chaining explicitly
+                # Different map: handle shop/gym/mountain chaining explicitly
                 Logger.info(f"[Navigation] Different map navigation")
                 current_map = self.game_manager.current_map_key
 
-                # Gym from new_map: go back to map first, then proceed to gym
-                if map_key == "gym.tmx" and current_map == "new_map.tmx":
-                    Logger.info("[Navigation] Gym: from new_map -> map -> gym")
+                # Gym from new_map or mountain: go back to map first, then proceed to gym
+                if map_key == "gym.tmx" and current_map in {"new_map.tmx", "mountain_map.tmx"}:
+                    Logger.info("[Navigation] Gym: from %s -> map -> gym", current_map)
                     self._navigate_to_map("map.tmx", None, None)
                     return
+
+                # Mountain navigation: if from gym or new_map, go back to map first
+                if map_key == "mountain_map.tmx":
+                    if current_map == "gym.tmx":
+                        Logger.info("[Navigation] Mountain: from gym -> map -> mountain")
+                        self._navigate_to_map("map.tmx", None, None)
+                        return
+                    elif current_map == "new_map.tmx":
+                        Logger.info("[Navigation] Mountain: from new_map -> map -> mountain")
+                        self._navigate_to_map("map.tmx", None, None)
+                        return
+                    elif current_map == "map.tmx":
+                        Logger.info("[Navigation] Mountain: from map -> teleporter -> mountain")
+                        self._navigate_to_map("mountain_map.tmx", target_x, target_y)
+                        return
 
                 if map_key == "new_map.tmx":
                     if current_map == "map.tmx":
                         Logger.info("[Navigation] Shop: from map -> teleporter (16,27) -> shop")
                         self._navigate_to_map("new_map.tmx", target_x, target_y)
-                    elif current_map == "gym.tmx":
-                        Logger.info("[Navigation] Shop: from gym -> map -> teleporter (16,27) -> shop")
+                    elif current_map in {"gym.tmx", "mountain_map.tmx"}:
+                        Logger.info("[Navigation] Shop: from %s -> map -> teleporter (16,27) -> shop", current_map)
                         # First go back to map; subsequent logic will continue to shop
                         self._navigate_to_map("map.tmx", 16, 27)
                     else:
@@ -342,7 +359,7 @@ class GameScene(Scene):
         # Store pending teleport info
         self.nav_teleport_pending = (target_map, target_x, target_y)
         
-        # Start navigation to teleporter with fallback enabled; allow stepping onto teleporter even if collidable
+        # Start navigation to teleporter with fallback enabled; teleporter tile must be walkable
         self._start_auto_navigation(tp_tx, tp_ty, allow_fallback=True, goal_is_teleporter=True)
 
     def _start_auto_navigation(self, target_tile_x: int, target_tile_y: int, prefer_direction: str | None = None, allow_fallback: bool = False, goal_is_teleporter: bool = False):
@@ -508,6 +525,7 @@ class GameScene(Scene):
         )
         tp_tx = int(target_tp.pos.x) // GameSettings.TILE_SIZE
         tp_ty = int(target_tp.pos.y) // GameSettings.TILE_SIZE
+        # Teleporter tile must be walkable; do not allow collidable goal tiles
         self._start_auto_navigation(tp_tx, tp_ty, goal_is_teleporter=True)
 
     def _update_auto_navigation(self, dt: float):
@@ -781,6 +799,20 @@ class GameScene(Scene):
                 return
         # Shop overlay has priority
         if self.shop_active:
+            # Log wheel/button events entering shop for debugging
+            if event.type in (pg.MOUSEWHEEL, pg.MOUSEBUTTONDOWN):
+                Logger.info(f"[SHOP_EVT] type={event.type} button={getattr(event, 'button', None)} wheel={getattr(event, 'y', None)}")
+                try:
+                    # Apply scroll immediately to keep in sync even if overlay misses the event
+                    wheel_val = 0
+                    if event.type == pg.MOUSEWHEEL:
+                        wheel_val = getattr(event, 'y', 0)
+                    elif event.type == pg.MOUSEBUTTONDOWN and getattr(event, 'button', None) in (4, 5):
+                        wheel_val = 1 if event.button == 4 else -1
+                    if wheel_val and self.shop_overlay.active:
+                        self.shop_overlay._scroll_by(wheel_val)
+                except Exception:
+                    pass
             self.shop_overlay.handle_event(event)
             # Check if shop was closed
             if not self.shop_overlay.active:
@@ -835,6 +867,17 @@ class GameScene(Scene):
         
         # Update shop overlay
         if self.shop_active:
+            # Also poll input_manager wheel (if any) to synthesize scroll events for shop
+            try:
+                from src.core.services import input_manager
+                wheel_val = getattr(input_manager, "mouse_wheel", 0)
+                if wheel_val:
+                    # Apply scroll directly as well as sending event for any UI logic
+                    self.shop_overlay._scroll_by(wheel_val)
+                    ev = pg.event.Event(pg.MOUSEWHEEL, {"y": wheel_val})
+                    self.shop_overlay.handle_event(ev)
+            except Exception:
+                pass
             self.shop_overlay.update(dt)
         
         # Update player and other data

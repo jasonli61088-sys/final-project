@@ -187,7 +187,6 @@ class EnemyTrainer(Entity):
                 level = random.randint(6, 15)  # Fallback
             
             # Scale HP and attack based on level with exact formulas
-            # Reference points: Lv7(ATK=10,HP=50), Lv16(ATK=15,HP=95), Lv36(ATK=25,HP=195)
             # HP formula: 5 * level + 15
             max_hp = round(5 * level + 15)
             

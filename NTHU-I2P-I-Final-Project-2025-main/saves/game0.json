@@ -150,7 +150,16 @@
         "x": 10.0,
         "y": 19.0
       },
-      "enemy_trainers": [],
+      "enemy_trainers": [
+        {
+          "x": 10.0,
+          "y": 8.0,
+          "classification": "stationary",
+          "facing": "DOWN",
+          "max_tiles": 2,
+          "element": "Fire"
+        }
+      ],
       "shop_npcs": []
     }
   ],
